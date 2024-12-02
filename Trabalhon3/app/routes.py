@@ -1,27 +1,28 @@
 from flask import Blueprint, jsonify, request
-from .models import Pedido, Usuario, Produto, db  # Importação unificada
+from .models import Pedido, Usuario, Produto,db 
+# Importação do krl todo
 
-# Blueprint para usuários
+# Blueprint usuários
 bp = Blueprint('usuarios', __name__, url_prefix='/usuarios')
 
-# Rota: Listar todos os usuários (GET /usuarios)
-@bp.route('/', methods=['GET'])
+# Rota dos usuarios
+@bp.route ( '/', methods=['GET'] )
 def listar_usuarios():
     usuarios = Usuario.query.all()
     usuarios_json = [{"id": u.id, "nome": u.nome, "email": u.email} for u in usuarios]
     return jsonify(usuarios_json)
 
-# Rota: Criar um novo usuário (POST /usuarios)
+#novo usuário so pesquisar no potman assim http://127.0.0.1:5000/usuario (POST) 
 @bp.route('/', methods=['POST'])
 def criar_usuario():
     dados = request.get_json()
     novo_usuario = Usuario(nome=dados['nome'], email=dados['email'])
     db.session.add(novo_usuario)
     db.session.commit()
-    return jsonify({"message": "Usuário criado com sucesso!"}), 201
+    return jsonify({"message": "Usuário criado"}), 201
 
-# Rota: Atualizar um usuário específico (PUT /usuarios/<id>)
-@bp.route('/<int:id>', methods=['PUT'])
+#Atualiza o uzuario la no potman(PUT /usuarios/<id>)
+@bp.route('/<int:id>', methods=[ 'PUT' ])
 def atualizar_usuario(id):
     usuario = Usuario.query.get(id)
     if not usuario:
@@ -32,9 +33,9 @@ def atualizar_usuario(id):
     usuario.email = dados.get('email', usuario.email)
 
     db.session.commit()
-    return jsonify({"message": "Usuário atualizado com sucesso!"})
+    return jsonify({"message": "Usuário atualizado"})
 
-# Rota: Excluir um usuário específico (DELETE /usuarios/<id>)
+#msm esquema so que de apagar o usuario
 @bp.route('/<int:id>', methods=['DELETE'])
 def excluir_usuario(id):
     usuario = Usuario.query.get(id)
@@ -43,19 +44,18 @@ def excluir_usuario(id):
 
     db.session.delete(usuario)
     db.session.commit()
-    return jsonify({"message": "Usuário excluído com sucesso!"})
+    return jsonify({"message": "Usuário excluído"})
 
-# Blueprint para produtos
+# Blueprint produtos
 bp_produtos = Blueprint('produtos', __name__, url_prefix='/produtos')
 
-# Rota: Listar todos os produtos (GET /produtos)
 @bp_produtos.route('/', methods=['GET'])
 def listar_produtos():
     produtos = Produto.query.all()
     produtos_json = [{"id": p.id, "nome": p.nome, "preco": p.preco, "estoque": p.estoque} for p in produtos]
     return jsonify(produtos_json)
 
-# Rota: Criar um novo produto (POST /produtos)
+
 @bp_produtos.route('/', methods=['POST'])
 def criar_produto():
     dados = request.get_json()
@@ -67,27 +67,27 @@ def criar_produto():
 
     try:
         db.session.commit()
-        return jsonify({"message": "Produto criado com sucesso!"}), 201
+        return jsonify({"message": "Produto criado"}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": f"Erro ao salvar o produto: {str(e)}"}), 500
+        return jsonify({"error": f"deu ruim ao salvar o produto: {str(e)}"}), 500
 
-# Rota: Excluir um produto específico (DELETE /produtos/<id>)
+
 @bp_produtos.route('/<int:id>', methods=['DELETE'])
 def excluir_produto(id):
-    produto = Produto.query.get(id)  # Busca o produto pelo ID no banco de dados
+    produto = Produto.query.get(id)  # Busca o produto pelo ID
     if not produto:
-        return jsonify({"error": "Produto não encontrado"}), 404  # Retorna erro 404 se não encontrar
+        return jsonify({"error": "Produto não encontrado"}), 404 
 
     try:
-        db.session.delete(produto)  # Remove o produto do banco
+        db.session.delete(produto)  # Remove o produto
         db.session.commit()  # Confirma a transação
-        return jsonify({"message": "Produto excluído com sucesso!"})  # Retorna mensagem de sucesso
+        return jsonify({"message": "Produto excluído"})
     except Exception as e:
-        db.session.rollback()  # Reverte a transação em caso de erro
-        return jsonify({"error": f"Erro ao excluir o produto: {str(e)}"}), 500
+        db.session.rollback()  #volta caso der ruim
+        return jsonify({"error": f"deu ruim ao excluir o produto: {str(e)}"}), 500
 
-# Rota: Atualizar um produto (PUT /produtos/<id>)
+# aqui so se repete a msm coisa do resto
 @bp_produtos.route('/<int:id>', methods=['PUT'])
 def atualizar_produto(id):
     produto = Produto.query.get(id)
@@ -98,17 +98,17 @@ def atualizar_produto(id):
     if not dados:
         return jsonify({"error": "Dados ausentes na requisição"}), 400
 
-    # Atualiza os dados
+    # Atualiza
     produto.nome = dados.get('nome', produto.nome)
     produto.preco = dados.get('preco', produto.preco)
     produto.estoque = dados.get('estoque', produto.estoque)
 
     try:
         db.session.commit()
-        return jsonify({"message": "Produto atualizado com sucesso!"})
+        return jsonify({"message": "Produto atualizado"})
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": f"Erro ao atualizar o produto: {str(e)}"}), 500
+        return jsonify({"error": f"deu ruim ao atualizar o produto: {str(e)}"}), 500
 
 bp_pedidos = Blueprint('pedidos', __name__, url_prefix='/pedidos')
 @bp_pedidos.route('/', methods=['POST'])
@@ -124,8 +124,8 @@ def criar_pedido():
     novo_pedido = Pedido(usuario_id=usuario_id, produto_id=produto_id, quantidade=quantidade)
     db.session.add(novo_pedido)
     db.session.commit()
-    return jsonify({"message": "Pedido criado com sucesso!", "pedido_id": novo_pedido.id}), 201
-
+    return jsonify({"message": "Pedido criado", "pedido_id": novo_pedido.id}), 201
+#o de sempre
 @bp_pedidos.route('/', methods=['GET'])
 def listar_pedidos():
     pedidos = Pedido.query.all()
@@ -145,14 +145,14 @@ def atualizar_pedido(id):
     pedido = Pedido.query.get(id)
     if not pedido:
         return jsonify({"error": "Pedido não encontrado"}), 404
-
+    #aqui pega pelo id e liga os pedidos com os usuarios ao produto
     dados = request.get_json()
     pedido.usuario_id = dados.get('usuario_id', pedido.usuario_id)
     pedido.produto_id = dados.get('produto_id', pedido.produto_id)
     pedido.quantidade = dados.get('quantidade', pedido.quantidade)
 
     db.session.commit()
-    return jsonify({"message": "Pedido atualizado com sucesso!"})
+    return jsonify({"message": "Pedido atualizado"})
 
 @bp_pedidos.route('/<int:id>', methods=['DELETE'])
 def excluir_pedido(id):
@@ -162,4 +162,4 @@ def excluir_pedido(id):
 
     db.session.delete(pedido)
     db.session.commit()
-    return jsonify({"message": "Pedido excluído com sucesso!"})
+    return jsonify({"message": "Pedido excluído"})

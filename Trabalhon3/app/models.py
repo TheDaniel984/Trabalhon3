@@ -1,17 +1,15 @@
-from .database import db
+from .database import db  # ACHEI O ERRO krlrlrlrlr
 
-
-# Modelo para Usuário
 class Usuario(db.Model):
-    __tablename__ = 'usuarios'
+    __tablename__ ='usuarios'
 
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
+    id = db.Column( db.Integer, primary_key=True )
+    nome = db.Column( db.String(100), nullable=False )
+    email = db.Column( db.String(100), unique=True, nullable=False )
 
     def __repr__(self):
+        # Corrigido dnv pq as rotas são mais instaveis que um buraco negro
         return f"<Usuario id={self.id}, nome={self.nome}, email={self.email}>"
-
 
     def to_dict(self):
         return {
@@ -19,7 +17,7 @@ class Usuario(db.Model):
             "nome": self.nome,
             "email": self.email
         }
-    from .database import db
+
 
 class Produto(db.Model):
     __tablename__ = 'produtos'
@@ -30,9 +28,8 @@ class Produto(db.Model):
     estoque = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f'<Produto {self.nome}>'
+        return f"<Produto {self.nome}>"
 
-from .database import db
 
 class Pedido(db.Model):
     __tablename__ = 'pedidos'
@@ -42,7 +39,7 @@ class Pedido(db.Model):
     produto_id = db.Column(db.Integer, db.ForeignKey('produtos.id'), nullable=False)
     quantidade = db.Column(db.Integer, nullable=False)
 
-    # Relacionamentos
+    # Relacionamento
     usuario = db.relationship('Usuario', backref='pedidos')
     produto = db.relationship('Produto', backref='pedidos')
 
